@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Table(name="users")
 @Data // Generates getters, setters, toString, equals, hashCode
 @NoArgsConstructor // Default constructor
-@AllArgsConstructor // All-args constructor
+//@AllArgsConstructor // All-args constructor
 public class User {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY) // Auto-generates ID for PostgreSQL
@@ -24,5 +24,10 @@ public class User {
     @Column(nullable=false,unique=true)
     private String email;
 
+    public User(String username, String passwordHash, String email) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.email = email;
+    }
 
 }

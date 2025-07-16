@@ -19,7 +19,7 @@ dependencies {
     // Spring Boot Essentials
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
+    implementation 'org.springframework.boot:spring-boot-starter-security' // 🔐 Added Spring Security
     // PostgreSQL Driver
     runtimeOnly 'org.postgresql:postgresql'
 
