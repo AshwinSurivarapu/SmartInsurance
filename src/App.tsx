@@ -9,7 +9,6 @@ function App() {
       <Button variant="contained"color="primary">
         MUI button Test
       </Button>
-     
     </div>
   );
 }

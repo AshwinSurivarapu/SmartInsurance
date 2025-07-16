@@ -1,7 +1,7 @@
 {
   "name": "customer-portal-app",
   "version": "0.1.0",
-  "private": true,
+  "private": true, 
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
