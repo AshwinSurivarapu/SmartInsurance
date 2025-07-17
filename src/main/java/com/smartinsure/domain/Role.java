@@ -1,20 +1,18 @@
 package com.smartinsure.domain;
 
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name="roles")
+@Document(collection="users")
 @Data
 @NoArgsConstructor
 public class Role {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable=false,unique=true)
-    private String name;
+   private String name;
 
     private Role(String name){
         this.name=name;

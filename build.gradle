@@ -1,14 +1,20 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.4'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.2.5' // Ensure this matches your project's version
+    id 'io.spring.dependency-management' version '1.1.4' // Or your current version
 }
 
 group = 'com.smartinsure'
-version = '1.0-SNAPSHOT'
+version = '0.0.1-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
@@ -16,23 +22,23 @@ repositories {
 }
 
 dependencies {
-    // Spring Boot Essentials
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security' // 🔐 Added Spring Security
-    // PostgreSQL Driver
-    runtimeOnly 'org.postgresql:postgresql'
+    // THIS IS THE ONLY SPRING DATA RELATED STARTER FOR USER-AUTH-SERVICE
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // Optional but recommended
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    // Testing
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    // If you added testcontainers for MongoDB, keep it:
+    // testImplementation 'org.testcontainers:testcontainers'
+    // testImplementation 'org.testcontainers:mongodb'
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 }
