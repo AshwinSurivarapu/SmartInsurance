@@ -1,9 +1,8 @@
 // smartinsure-platform/ui/customer-portal-app/src/components/RegisterPage.tsx
-import React from 'react';
-import { TextField, Button, Typography, Container, Box } from '@mui/material';
-import { useFormik } from 'formik'; // Import useFormik hook
+import React, { useState } from 'react'; // Import useState
+import { TextField, Button, Typography, Container, Box, Alert, CircularProgress } from '@mui/material'; // Import Alert, CircularProgress
+import { useFormik } from 'formik';
 
-// Define the shape of our form values
 interface RegisterFormValues {
   username: string;
   email: string;
@@ -12,7 +11,10 @@ interface RegisterFormValues {
 }
 
 const RegisterPage: React.FC = () => {
-  // Initialize Formik
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState<boolean>(false);
+
   const formik = useFormik<RegisterFormValues>({
     initialValues: {
       username: '',
@@ -20,9 +22,8 @@ const RegisterPage: React.FC = () => {
       password: '',
       confirmPassword: '',
     },
-    // Basic validation for demonstration. We'll enhance this later if needed.
     validate: (values) => {
-      const errors: Partial<RegisterFormValues> = {}; // Partial allows some fields to be missing
+      const errors: Partial<RegisterFormValues> = {};
       if (!values.username) {
         errors.username = 'Required';
       }
@@ -43,10 +44,45 @@ const RegisterPage: React.FC = () => {
       }
       return errors;
     },
-    onSubmit: (values) => {
-      // This is where our backend API call will go on Day 3
-      console.log('Registration form submitted with Formik values:', values);
-      alert(JSON.stringify(values, null, 2)); // Show submitted values for now
+    onSubmit: async (values) => {
+      setLoading(true); // Start loading
+      setMessage(null); // Clear previous messages
+      setIsError(false);
+
+      // Define the backend URL
+      const REGISTER_URL = 'http://localhost:8080/api/auth/register'; // User Auth Service is on 8080
+
+      try {
+        const response = await fetch(REGISTER_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // Send only username, email, and password as required by the backend DTO
+          body: JSON.stringify({
+            username: values.username,
+            email: values.email,
+            password: values.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) { // Check for 2xx status codes
+          setMessage(data.message || 'Registration successful!');
+          setIsError(false);
+          // Optionally, clear form or redirect
+          formik.resetForm(); // Clear the form after success
+        } else { // Handle non-2xx status codes (e.g., 400 Bad Request)
+          setMessage(data.message || 'Registration failed. Please try again.');
+          setIsError(true);
+        }
+      } catch (error: any) {
+        setMessage(`Network error or server unreachable: ${error.message}`);
+        setIsError(true);
+      } finally {
+        setLoading(false); // End loading
+      }
     },
   });
 
@@ -63,7 +99,13 @@ const RegisterPage: React.FC = () => {
         <Typography component="h1" variant="h5">
           Register
         </Typography>
-        {/* Link Formik's handleSubmit to the form's onSubmit */}
+
+        {message && ( // Display message if present
+          <Alert severity={isError ? "error" : "success"} sx={{ width: '100%', mt: 2 }}>
+            {message}
+          </Alert>
+        )}
+
         <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 3 }}>
           <TextField
             margin="normal"
@@ -71,14 +113,14 @@ const RegisterPage: React.FC = () => {
             fullWidth
             id="username"
             label="Username"
-            name="username" // Formik uses the 'name' prop to match initialValues
+            name="username"
             autoComplete="username"
             autoFocus
             value={formik.values.username}
-            onChange={formik.handleChange} // Formik's onChange handles updates
-            onBlur={formik.handleBlur} // Formik's onBlur tracks if field has been touched
-            error={formik.touched.username && Boolean(formik.errors.username)} // Show error if touched and error exists
-            helperText={formik.touched.username && formik.errors.username} // Display error message
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.username && Boolean(formik.errors.username)}
+            helperText={formik.touched.username && formik.errors.username}
           />
           <TextField
             margin="normal"
@@ -129,9 +171,9 @@ const RegisterPage: React.FC = () => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            disabled={formik.isSubmitting} // Disable button while submitting
+            disabled={formik.isSubmitting || loading} // Disable if Formik is submitting or our custom loading state is true
           >
-            Sign Up
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
           </Button>
         </Box>
       </Box>
