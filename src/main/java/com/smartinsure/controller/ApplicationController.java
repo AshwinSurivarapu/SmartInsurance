@@ -1,5 +1,6 @@
 package com.smartinsure.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,8 @@ public class ApplicationController {
     @Value("${plan.recommender.service.url}") // Default to 5001
     private String planRecommenderServiceUrl;
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    private  RestTemplate restTemplate;
 
     // Constructor injection for RestTemplate is preferred
     public ApplicationController() {
