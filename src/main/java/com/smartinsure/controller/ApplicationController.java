@@ -1,5 +1,6 @@
 package com.smartinsure.controller;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,9 @@ public class ApplicationController {
 
     // DTO for the response we expect from plan-recommender-service
     static class RecommendationResponse {
-        public String recommendation;
+        public String best_option;
+        public String better_option;
+        public String good_option;
         public String message;
         // Add other fields if the Python service returns more
     }
@@ -68,22 +71,51 @@ public class ApplicationController {
                     pythonRequestPayload,
                     RecommendationResponse.class
             );
-            System.out.println("Received recommendation: " + recommendation.recommendation);
+            // --- UPDATED: Logging and response to show all three options ---
+            System.out.println("Received ranked recommendations from Python service:");
+            System.out.println("Best Option: " + recommendation.best_option);
+            System.out.println("Better Option: " + recommendation.better_option);
+            System.out.println("Good Option: " + recommendation.good_option);
+            System.out.println(" AI Message: " + recommendation.message);
+
+// --- CRITICAL CHANGES BELOW: Building a cleaner response for the client ---
+            Map<String, Object> finalResponse = new HashMap<>();
+            finalResponse.put("status", "success"); // Indicate success status
+            finalResponse.put("message", "Application processed successfully for " + request.customerUsername + "."); // Concise status message
+
+            // Group AI recommendations under a clear key
+            Map<String, Object> aiRecommendations = new HashMap<>();
+            aiRecommendations.put("bestOption", recommendation.best_option);
+            aiRecommendations.put("betterOption", recommendation.better_option);
+            aiRecommendations.put("goodOption", recommendation.good_option);
+            aiRecommendations.put("aiFeedback", recommendation.message); // AI's specific message
+
+            finalResponse.put("recommendedPlans", aiRecommendations); // Nested structure for clarity
+
+            // You can also include application details if the frontend needs them again
+            Map<String, Object> appDetails = new HashMap<>();
+            appDetails.put("username", request.customerUsername);
+            appDetails.put("age", request.customerAge);
+            appDetails.put("income", request.customerIncome);
+            finalResponse.put("applicationDetails", appDetails);
+
+
+            return new ResponseEntity<>(finalResponse, HttpStatus.CREATED);
         } catch (Exception e) {
             System.err.println("Error calling plan-recommender-service: " + e.getMessage());
-            // Handle the error: you might return an error, retry, or proceed without a recommendation
+            e.printStackTrace();
             return new ResponseEntity<>(
                     Map.of("message", "Application received, but failed to get plan recommendation."),
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
 
-        // --- Step 2: (Future) Save application details to database ---
-        // For now, we'll just acknowledge receipt and the recommendation.
-        // In a real scenario, you'd save `request` details and `recommendation`
-        // to a database (e.g., using a JPA repository here).
-
-        String responseMessage = "Application created for " + request.customerUsername + ". Recommended Plan: " + recommendation.recommendation;
-        return new ResponseEntity<>(Map.of("message", responseMessage), HttpStatus.CREATED);
+//        // --- Step 2: (Future) Save application details to database ---
+//        // For now, we'll just acknowledge receipt and the recommendation.
+//        // In a real scenario, you'd save `request` details and `recommendation`
+//        // to a database (e.g., using a JPA repository here).
+//
+//        String responseMessage = "Application created for " + request.customerUsername + ". Recommended Plan: " + recommendation.recommendation;
+//        return new ResponseEntity<>(Map.of("message", responseMessage), HttpStatus.CREATED);
     }
 }
