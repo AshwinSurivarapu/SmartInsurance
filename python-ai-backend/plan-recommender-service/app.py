@@ -1,7 +1,7 @@
 # smartinsure-platform/services/python/plan-recommender-service/app.py
 from flask import Flask, request, jsonify
 from transformers import pipeline # Import pipeline
-
+from pydantic import BaseModel #ensure basemodel is impoeted if using flask with pydantic
 app = Flask(__name__)
 
 # --- Hugging Face Model Loading ---
@@ -15,6 +15,26 @@ try:
 except Exception as e:
     print(f"Error loading Hugging Face pipeline: {e}")
     classifier = None # Indicate failure to load
+
+# --- DTOs (Keep UserDetails and ApplicationPayload as is) ---
+class UserDetails(BaseModel):
+    username: str
+    age: int
+    income: float
+
+class ApplicationPayload(BaseModel):
+    userDetails: UserDetails
+
+# --- UPDATED: RecommendationResponse to include three ranked options ---
+class RecommendationResponse(BaseModel):
+    best_option: str
+    better_option: str
+    good_option: str
+    message: str = "Recommendation generated successfully."
+    # You might also want to include scores if the frontend needs them
+    # best_option_score: float = 0.0
+    # better_option_score: float = 0.0
+    # good_option_score: float = 0.0
 
 @app.route('/')
 def home():
@@ -63,16 +83,34 @@ def recommend_plan():
         results = classifier(sequence_to_classify, candidate_labels, multi_label=False)
         print(f"Zero-shot classification results: {results}")
 
+        num_options=len(results['labels'])
+        best_opt="N/A"
+        better_opt="N/A"
+        good_opt="N/A"
+        best_opt_score= 0.0
+        if num_options>0:
+            best_opt=results['labels'][0]
+            best_opt_score=results['scores'][0]
+        if num_options>1:
+            better_opt=results['labels'][1]
+        if num_options>2:
+            good_opt=results['labels'][2]
         # The most confident recommendation is the first one in the sorted list
-        best_recommendation = results['labels'][0]
-        confidence_score = results['scores'][0]
+        message = f"AI provided ranked recommendations based on profile. Best confidence: {best_opt_score:.2f}"
 
-        response = {
-            "recommendation": best_recommendation,
-            "message": f"AI recommended '{best_recommendation}' with {confidence_score:.2f} confidence."
-        }
-        return jsonify(response), 200
+        # --- CRITICAL CHANGE HERE ---
+        # 1. Create the RecommendationResponse Pydantic object
+        response_model_instance = RecommendationResponse(
+            best_option=best_opt,
+            better_option=better_opt,
+            good_option=good_opt,
+            message=message
+        )
+        # 2. Convert the Pydantic model instance to a Python dictionary using .model_dump()
+        response_data_dict = response_model_instance.model_dump()
 
+        # 3. Use Flask's jsonify to return the dictionary as a JSON response with the correct header
+        return jsonify(response_data_dict), 200
     except Exception as e:
         print(f"Error during AI inference: {e}")
         return jsonify({"error": f"Failed to generate AI recommendation: {e}"}), 500
