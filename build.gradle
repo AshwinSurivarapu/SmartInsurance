@@ -26,7 +26,10 @@ dependencies {
     // THIS IS THE ONLY SPRING DATA RELATED STARTER FOR USER-AUTH-SERVICE
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5' // Latest stable jjwt-api
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // Latest stable jjwt-impl
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // Latest stable jjwt-jackson for JSON processing
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
@@ -34,10 +37,7 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    // If you added testcontainers for MongoDB, keep it:
-    // testImplementation 'org.testcontainers:testcontainers'
-    // testImplementation 'org.testcontainers:mongodb'
-}
+    }
 
 tasks.named('test') {
     useJUnitPlatform()
