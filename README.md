@@ -3,7 +3,7 @@
 SmartInsure is a modern, polyglot microservices-based insurance enrollment platform built with a blend of cutting-edge technologies: **Spring Boot (Java)**, **Flask with Transformers (Python)**, and **React (TypeScript)**. It emphasizes scalable architecture, AI-powered features, and containerized deployment for real-world readiness.
 
 ---
-
+ ̑
 ## 🧭 Overview
 
 | Category         | Details                                                                 |
