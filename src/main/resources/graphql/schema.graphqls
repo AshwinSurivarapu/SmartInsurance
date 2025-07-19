@@ -1,0 +1,35 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    # A dummy field if you don't have any queries yet, to satisfy GraphQL schema requirements
+    _ : String
+}
+
+type Mutation {
+    # Mutation for creating a new insurance application - no policyType in input anymore
+    createApplication(input: ApplicationInput!): Application!
+}
+
+# Input type for creating an application - policyType removed
+input ApplicationInput {
+    userId: String!
+    customerAge: Int!
+    customerIncome: Float!
+}
+
+# Output type for an application
+type Application {
+    id: ID!
+    userId: String!
+    policyType: String! # This field now represents the AI's 'bestOption'
+    recommendation: String # This field is for the full combined AI message
+    status: String! # e.g., PENDING, APPROVED, REJECTED
+
+    # New fields for individual recommendations
+    bestOption: String!
+    betterOption: String!
+    goodOption: String!
+}
