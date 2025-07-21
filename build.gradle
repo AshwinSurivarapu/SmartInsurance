@@ -15,17 +15,13 @@ repositories {
     mavenCentral()
 }
 
+// smartinsure-platform/services/java/application-service/build.gradle
+
 dependencies {
     // Spring Boot Essentials
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-graphql'
-    // ADD THESE SPRING SECURITY AND JWT DEPENDENCIES
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5' // Ensure this version matches user-auth-service
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // Ensure this version matches user-auth-service
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // Ensure this version matches user-auth-service
-    // END OF ADDED DEPENDENCIES
     implementation 'org.springframework.graphql:spring-graphql-test' // For testing GraphQL later, if needed
     // If you're using Spring Boot 3+, ensure you also have Jakarta Servlet API for GraphQL (usually pulled by spring-boot-starter-web)
     implementation 'jakarta.servlet:jakarta.servlet-api'
